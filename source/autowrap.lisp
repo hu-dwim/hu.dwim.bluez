@@ -1,7 +1,7 @@
 (in-package :hu.dwim.bluez.ffi)
 
-(autowrap:c-include '(hu.dwim.bluez-ffi autospec "bluez.h")
-  :spec-path '(hu.dwim.bluez-ffi autospec)
+(autowrap:c-include '(hu.dwim.bluez autospec "bluez.h")
+  :spec-path '(hu.dwim.bluez autospec)
   :exclude-arch ("i386-unknown-freebsd"
                  "x86_64-unknown-freebsd"
                  "i686-apple-darwin9"

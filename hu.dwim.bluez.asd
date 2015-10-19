@@ -1,4 +1,4 @@
-(defsystem :hu.dwim.bluez-ffi
+(defsystem :hu.dwim.bluez
   :description "Common Lisp FFI wrapper for libbluetooth, aka Bluez, which is a Linux Bluetooth stack."
   :author "Attila Lendvai"
   :license "BSD or Bugroff"
