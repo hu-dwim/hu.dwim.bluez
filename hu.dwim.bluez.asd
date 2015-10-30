@@ -10,8 +10,9 @@
                :trivial-garbage)
   :components ((:module "source"
                 :serial t
-                :components ((:file "package")
-                             (:file "autowrap")
+                :components ((:file "autowrap")
+                             (:file "package")
+                             (:file "package-late")
                              (:file "bluez")))
                (:module "autospec"
                 :components ((:static-file "bluez.h")))))
