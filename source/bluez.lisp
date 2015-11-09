@@ -41,7 +41,7 @@
     :with result = (make-array size :element-type '(unsigned-byte 8))
     :for index :from 0 :below size
     :do (setf (aref result index)
-              (cffi:mem-ref pointer :char index))
+              (cffi:mem-ref pointer :unsigned-char index))
     :finally (return result)))
 
 ;;;;;;
