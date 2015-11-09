@@ -18,10 +18,12 @@
      hci-close-dev
      hci-le-set-scan-parameters
      hci-le-set-scan-enable
-     +hci-max-event-size+
+     le-advertising-info
 
      hci/reset-device
-     hci-filter/initialize-for-scanning
+     hci-filter/initialize-for-le-scanning
+     bdaddr->string
+     parse-extended-inquiry-response
 
      hci-dev-info
      hci-filter
@@ -37,13 +39,18 @@
      +sol-hci+
      +hci-filter+
      +hci-event-pkt+
+     +hci-event-hdr-size+
+     +hci-max-event-size+
+
      +evt-le-meta-event+
+     +evt-le-advertising-report+
 
      fcntl
      +f-getfl+
      +f-setfl+
      +o-nonblock+
      +ewouldblock+
+     +eintr+
      ))
  :hu.dwim.bluez)
 

@@ -85,7 +85,7 @@
         (setf (c-ref hci-filter hci-filter :event-mask word-offset) value))))
   hci-filter)
 
-(defun hci-filter/initialize-for-scanning (hci-filter)
+(defun hci-filter/initialize-for-le-scanning (hci-filter)
   (check-type hci-filter hci-filter)
   (hci-filter-clear hci-filter)
   (hci-filter-set-ptype +hci-event-pkt+ hci-filter)
@@ -122,3 +122,55 @@
            (hci/bringup-device socket device-id))
       (c-fun/rc close socket)))
   (values))
+
+(defun bdaddr->string (bdaddr)
+  ;; this won't work because of the way c typedef is first an anonymous struct type and then an alias to that struct...
+  ;;(check-type bdaddr bdaddr-t)
+  (check-type bdaddr autowrap:wrapper)
+  (assert (not (cffi:null-pointer-p (ptr bdaddr))))
+  (c-with ((address :char :count 32))
+    (ba2str bdaddr (address &))
+    (cffi:foreign-string-to-lisp (address &))))
+
+(macrolet ((x (name value &optional doc)
+             `(progn
+                (defconstant ,name ,value ,doc)
+                (export ',name))))
+  (x +eir-flags+            #x01)
+  (x +eir-uuid16-some+      #x02 "16-bit UUID, more available")
+  (x +eir-uuid16-all+       #x03 "16-bit UUID, all listed")
+  (x +eir-uuid32-some+      #x04 "32-bit UUID, more available")
+  (x +eir-uuid32-all+       #x05  "32-bit UUID, all listed")
+  (x +eir-uuid128-some+     #x06  "128-bit UUID, more available")
+  (x +eir-uuid128-all+      #x07  "128-bit UUID, all listed")
+  (x +eir-name-short+       #x08  "shortened local name")
+  (x +eir-name-complete+    #x09  "complete local name")
+  (x +eir-tx-power+         #x0A  "transmit power level")
+  (x +eir-device-id+        #x10  "device ID"))
+
+(defun parse-extended-inquiry-response (eir eir-length)
+  (check-type eir cffi:foreign-pointer)
+  (check-type eir-length alexandria:array-index)
+  (loop
+    :with offset = 0
+    :with buffer = eir
+
+    :while (< offset eir-length)
+    :for field-length = (cffi:mem-ref buffer :unsigned-char offset)
+    :until (zerop field-length)
+    :while (<= (+ offset field-length) eir-length)
+    :for field-type = (cffi:mem-ref buffer :unsigned-char 1)
+    :appending (prog1
+                   (flet ((field-as-string ()
+                            (let ((name-length (1- field-length)))
+                              (cffi:foreign-string-to-lisp buffer :offset 2 :count name-length :encoding :ascii))))
+                     (case field-type
+                       (#.+eir-name-short+
+                        (list '+eir-name-short+ (field-as-string)))
+                       (#.+eir-name-complete+
+                        (list '+eir-name-complete+ (field-as-string)))
+                       (t
+                        #+nil
+                        (format t "Unknown field while parsing: ~D~%" field-type))))
+                 (incf offset (1+ field-length))
+                 (cffi:incf-pointer buffer (1+ field-length)))))
