@@ -14,6 +14,7 @@
      hci-device-name
      str2ba
      hci-devid
+     hci-get-route
      hci-open-dev
      hci-close-dev
      hci-le-set-scan-parameters

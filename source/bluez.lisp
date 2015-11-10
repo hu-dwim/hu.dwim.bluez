@@ -29,11 +29,15 @@
 ;;;;;;
 ;;; utils
 
+(defun %c-fun/rc/check-error (rc fn-name whole-form)
+  (when (minusp rc)
+    (error "FFI call failed. Name: ~S, return-code: ~S, errno: ~S, strerror: ~S, expression: ~S."
+           fn-name rc autowrap:errno (hu.dwim.bluez.ffi:strerror autowrap:errno) whole-form)))
+
 (defmacro c-fun/rc (&whole whole fn-name &rest args)
   (with-unique-names (rc)
     `(let ((,rc (c-fun ,fn-name ,@args)))
-       (when (minusp ,rc)
-         (error "FFI call failed. Name: ~S, return-code: ~S, errno: ~S, expression: ~S." ',fn-name ,rc autowrap:errno ',whole))
+       (%c-fun/rc/check-error ,rc ',fn-name ',whole)
        ,rc)))
 
 (defun copy-sap-to-byte-vector (pointer size)

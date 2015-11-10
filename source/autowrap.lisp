@@ -40,6 +40,7 @@
                         "close"
                         "ioctl"
                         "fcntl"
+                        "strerror"
                         "F_SETFL"
                         "O_NONBLOCK"
                         ;; socket stuff
