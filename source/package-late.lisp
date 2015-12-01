@@ -22,6 +22,7 @@
      le-advertising-info
 
      hci/reset-device
+     hci/is-device-le-capable?
      hci-filter/initialize-for-le-scanning
      bdaddr->string
      parse-extended-inquiry-response

@@ -116,6 +116,14 @@
     (values (device-info :name string)
             (bdaddr->string (device-info :bdaddr &)))))
 
+(defun hci/is-device-le-capable? (device-id)
+  (check-type device-id hci-device-id)
+  (c-with ((device-info hci-dev-info))
+    (c-fun/rc hci-devinfo device-id device-info)
+    ;; from: http://code.metager.de/source/xref/linux/bluetooth/bluez-hcidump/lib/hci.c#lmp_features_map
+    (not (zerop (logand (cffi:mem-ref (device-info :features &) :uchar 4)
+                        +lmp-le+)))))
+
 (defun hci/shutdown-device (socket device-id)
   (check-type device-id hci-device-id)
   (check-type socket fd)
