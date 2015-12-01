@@ -47,6 +47,7 @@
      +evt-le-advertising-report+
 
      fcntl
+     fd-nonblocking-p
      +f-getfl+
      +f-setfl+
      +o-nonblock+

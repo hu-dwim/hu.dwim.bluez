@@ -48,6 +48,17 @@
               (cffi:mem-ref pointer :unsigned-char index))
     :finally (return result)))
 
+(defun (setf fd-nonblocking-p) (enabled fd)
+  (check-type fd fd)
+  (let* ((current-flags (c-fun/rc fcntl fd +f-getfl+))
+         (new-flags (if enabled
+                        (logior current-flags +o-nonblock+)
+                        (logand current-flags (lognot +o-nonblock+)))))
+    (unless (eql current-flags new-flags)
+      (format t "Setting fd ~S flags to ~S~%" fd new-flags)
+      (c-fun/rc fcntl fd +f-setfl+ :int new-flags)))
+  (values))
+
 ;;;;;;
 ;;; API
 
@@ -102,7 +113,8 @@
     (c-fun/rc hci-devinfo device-id device-info)
     ;; which one is more readable? maybe use something like (defmacro cref (&rest x) x) for readability?
     ;;(c-ref device-info hci-dev-info :name string)
-    (device-info :name string)))
+    (values (device-info :name string)
+            (bdaddr->string (device-info :bdaddr &)))))
 
 (defun hci/shutdown-device (socket device-id)
   (check-type device-id hci-device-id)
@@ -130,7 +142,8 @@
 (defun bdaddr->string (bdaddr)
   ;; this won't work because of the way c typedef is first an anonymous struct type and then an alias to that struct...
   ;;(check-type bdaddr bdaddr-t)
-  (check-type bdaddr autowrap:wrapper)
+  ;; and it's valid to call it with e.g. (device-info :bdaddr &), so we cannot assert on the type
+  ;;(check-type bdaddr autowrap:wrapper)
   (assert (not (cffi:null-pointer-p (ptr bdaddr))))
   (c-with ((address :char :count 32))
     (ba2str bdaddr (address &))
