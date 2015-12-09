@@ -34,6 +34,10 @@
      hci-filter-set-event
 
      uint8-t
+     htob/16
+     htob/32
+     htob/64
+     htob/128
 
      getsockopt
      setsockopt

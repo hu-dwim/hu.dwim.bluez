@@ -6,6 +6,32 @@
 (defconstant +hcidevdown+  #x400448ca)
 (defconstant +hcidevup+    #x400448c9)
 
+
+;; TODO HCI is little-endian. these should be swapping bytes when run on big-endian hosts.
+(declaim (inline htob/16 htob/32 htob/64 htob/128))
+
+(defun htob/16 (value)
+  (check-type value (or (unsigned-byte 16)
+                        (integer #.(- (expt 2 15)) #.(1- (expt 2 15)))))
+  ;; (ldb (byte 16 0) -42)
+  ;; (logand -42 #xffff)
+  value)
+
+(defun htob/32 (value)
+  (check-type value (or (unsigned-byte 32)
+                        (integer #.(- (expt 2 31)) #.(1- (expt 2 31)))))
+  value)
+
+(defun htob/64 (value)
+  (check-type value (or (unsigned-byte 64)
+                        (integer #.(- (expt 2 63)) #.(1- (expt 2 63)))))
+  value)
+
+(defun htob/128 (value)
+  (check-type value (or (unsigned-byte 128)
+                        (integer #.(- (expt 2 127)) #.(1- (expt 2 127)))))
+  value)
+
 ;;;;;;
 ;;; library loading
 
