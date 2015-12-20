@@ -7,9 +7,11 @@
      ;;   #:strerror
      ;;   #:version
 
+     libbluetooth
+
      c-fun/rc
 
-     bdaddr-t
+     bdaddr_t
      hci-device-id
      hci-device-name
      str2ba
@@ -25,6 +27,7 @@
      hci/is-device-le-capable?
      hci-filter/initialize-for-le-scanning
      bdaddr->string
+     string->bdaddr
      parse-extended-inquiry-response
 
      hci-dev-info
@@ -34,6 +37,9 @@
      hci-filter-set-event
 
      uint8-t
+     uint16-t
+     uint32-t
+
      htob/16
      htob/32
      htob/64
@@ -51,6 +57,8 @@
      +evt-le-meta-event+
      +evt-le-advertising-report+
 
+     +le-public-address+
+
      fcntl
      fd-nonblocking-p
      +f-getfl+
@@ -60,7 +68,3 @@
      +eintr+
      ))
  :hu.dwim.bluez)
-
-;; define some convenience type aliases
-(autowrap:define-foreign-alias 'hci-dev-info '(:struct (hci-dev-info)))
-(autowrap:define-foreign-alias 'hci-filter '(:struct (hci-filter)))

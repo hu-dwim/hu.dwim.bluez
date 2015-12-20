@@ -14,8 +14,8 @@
 
 (in-package :hu.dwim.bluez/fancy)
 
-(def (with-macro* e :macro-only-arguments (devid-var-name fd-var-name)) with-open-bluetooth-socket
-    (devid-var-name fd-var-name &key local-device remote-device)
+(def (with-macro* e :macro-only-arguments (#+nil devid-var-name fd-var-name)) with-open-hci-socket
+    (#+nil devid-var-name fd-var-name &key local-device remote-device)
   "LOCAL-DEVICE: mac address or a 'hci2' device name. REMOTE-DEVICE: a mac address."
   (check-type local-device (or null string))
   (check-type remote-device (or null string))
@@ -31,7 +31,7 @@
                        (c-fun/rc bluez:hci-devid local-device)))))
     (bind ((device-fd (c-fun/rc bluez:hci-open-dev device-id)))
      (unwind-protect
-          (-with-macro/body- (device-fd fd-var-name) (device-id devid-var-name))
+          (-with-macro/body- (device-fd fd-var-name) #+nil(device-id devid-var-name))
        (c-fun/rc bluez:hci-close-dev device-fd)))))
 
 (def (class* eas) hci-connection ()
