@@ -28,7 +28,7 @@
 ;;;;;;
 ;;; types
 
-(deftype hci-device-id ()
+(deftype hci/device-id ()
   ;; 1023 is an arbitrary limit on the max nubmer of devices
   '(integer 0 1023))
 
@@ -142,12 +142,12 @@
   ;;(check-type hci-filter hci-filter)
   (hci-filter/clear filter)
   (hci-filter/set-ptype +hci_event_pkt+ filter)
-  (hci-filter/set-event +evt_le_meta_event_size+ filter)
+  (hci-filter/set-event +evt_le_meta_event+ filter)
   (hci-filter/set-event +evt_le_advertising_report+ filter)
   filter)
 
-(defun hci-device-name (device-id)
-  (check-type device-id hci-device-id)
+(defun hci/device-name (device-id)
+  (check-type device-id hci/device-id)
   (with-foreign-object (device-info '(:struct hci_dev_info))
     (c-fun/rc hci_devinfo device-id device-info)
     ;; which one is more readable? maybe use something like (defmacro cref (&rest x) x) for readability?
@@ -157,7 +157,7 @@
             (bdaddr->string (foreign-slot-pointer device-info '(:struct hci_dev_info) 'bdaddr)))))
 
 (defun hci/is-device-le-capable? (device-id)
-  (check-type device-id hci-device-id)
+  (check-type device-id hci/device-id)
   (with-foreign-object (device-info '(:struct hci_dev_info))
     (c-fun/rc hci_devinfo device-id device-info)
     ;; from: http://code.metager.de/source/xref/linux/bluetooth/bluez-hcidump/lib/hci.c#lmp_features_map
@@ -166,17 +166,17 @@
                         +lmp_le+)))))
 
 (defun hci/shutdown-device (socket device-id)
-  (check-type device-id hci-device-id)
+  (check-type device-id hci/device-id)
   (check-type socket fd)
   (c-fun/rc ioctl socket +hcidevdown+ :int device-id))
 
 (defun hci/bringup-device (socket device-id)
-  (check-type device-id hci-device-id)
+  (check-type device-id hci/device-id)
   (check-type socket fd)
   (c-fun/rc ioctl socket +hcidevup+ :int device-id))
 
 (defun hci/reset-device (device-id)
-  (check-type device-id hci-device-id)
+  (check-type device-id hci/device-id)
   (let ((socket (c-fun/rc socket +af_bluetooth+ +sock_raw+ +btproto_hci+)))
     (unwind-protect
          ;; NOTE: +hcidevreset+ is broken in some way. when using this to reset the device then

@@ -2,12 +2,12 @@
 
 (hu.dwim.def:def hu.dwim.def:package :hu.dwim.bluez/fancy
   (:use :cl
-        :autowrap.minimal
-        :plus-c
-        :hu.dwim.bluez
         :hu.dwim.def
         :iterate
         :metabang-bind)
+  (:import-from :hu.dwim.bluez
+                c-fun
+                c-fun/rc)
   (:local-nicknames
    (#:bluez :hu.dwim.bluez)
    (#:bluez.ffi :hu.dwim.bluez.ffi)))
@@ -21,18 +21,19 @@
   (check-type remote-device (or null string))
   (when (and local-device
              remote-device)
-    (error "~S was called with both LOCAL-DEVICE and REMOTE-DEVICE, provide only one." 'with-open-bluetooth-socket))
+    (error "~S was called with both LOCAL-DEVICE and REMOTE-DEVICE, provide only one."
+           'with-open-bluetooth-socket))
   (bind ((device-id (cond
                       (remote-device
-                       (c-with ((device-address bluez:bdaddr-t))
+                       (cffi:with-foreign-object (device-address 'bluez:bdaddr_t)
                          (c-fun/rc bluez:str2ba remote-device device-address)
-                         (c-fun/rc bluez:hci-get-route device-address)))
+                         (c-fun/rc bluez:hci_get_route device-address)))
                       (local-device
-                       (c-fun/rc bluez:hci-devid local-device)))))
-    (bind ((device-fd (c-fun/rc bluez:hci-open-dev device-id)))
+                       (c-fun/rc bluez:hci_devid local-device)))))
+    (bind ((device-fd (c-fun/rc bluez:hci_open_dev device-id)))
      (unwind-protect
           (-with-macro/body- (device-fd fd-var-name) #+nil(device-id devid-var-name))
-       (c-fun/rc bluez:hci-close-dev device-fd)))))
+       (c-fun/rc bluez:hci_close_dev device-fd)))))
 
 (def (class* eas) hci-connection ()
   ((socket)
@@ -65,26 +66,26 @@
     (error "~S was called with both LOCAL-DEVICE and REMOTE-DEVICE, provide only one." -this-function/name-))
   (bind ((device-id (cond
                       (remote-device
-                       (c-with ((device-address bluez:bdaddr-t))
+                       (cffi:with-foreign-object (device-address 'bluez:bdaddr_t)
                          (c-fun/rc bluez:str2ba remote-device device-address)
-                         (c-fun/rc bluez:hci-get-route device-address)))
+                         (c-fun/rc bluez:hci_get_route device-address)))
                       (local-device
-                       (c-fun/rc bluez:hci-devid local-device))
+                       (c-fun/rc bluez:hci_devid local-device))
                       (t
                        0)))
-         ((:values device-name mac-address) (bluez:hci-device-name device-id))
-         (socket (c-fun/rc bluez:hci-open-dev device-id))
+         ((:values device-name mac-address) (bluez:hci/device-name device-id))
+         (socket (c-fun/rc bluez:hci_open_dev device-id))
          (connection (make-instance 'hci-connection
                                     :socket socket
                                     :hci-device-id device-id
                                     :hci-device-name device-name
                                     :mac-address mac-address)))
     (when non-blocking?
-      (setf (fd-nonblocking-p socket) t))
+      (setf (bluez:fd-nonblocking-p socket) t))
     (push connection *open-hci-connections*)
     connection))
 
 (def (function e) close-hci-connection (connection)
-  (c-fun/rc bluez:hci-close-dev (socket-of connection))
+  (c-fun/rc bluez:hci_close_dev (socket-of connection))
   (setf (socket-of connection) nil)
   connection)

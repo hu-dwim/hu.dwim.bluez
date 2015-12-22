@@ -26,7 +26,7 @@
                               ;; :ffi-name-transformer "hu.dwim.bluez::ffi-name-transformer"
                               :ffi-type-transformer "hu.dwim.bluez::ffi-type-transformer"
                               :foreign-library-name "hu.dwim.bluez.ffi::libbluetooth"
-                              :foreign-library-spec (t (:default "libbluetooth"))
+                              :foreign-library-spec ((t (:default "libbluetooth")))
                               ;; AFAIK BlueZ is Linux only.
                               :exclude-archs ("i386-unknown-freebsd"
                                               "x86_64-unknown-freebsd"
