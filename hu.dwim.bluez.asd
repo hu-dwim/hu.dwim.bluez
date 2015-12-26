@@ -13,16 +13,15 @@
   :components ((:file "package-stage-1"
                 :pathname "source/package-stage-1")
                (:module "source"
-                :depends-on ("autospec" "package-stage-1")
+                :depends-on ("c2ffi-spec" "package-stage-1")
                 :serial t
                 :components ((:file "package-stage-2")
                              (:file "package-stage-3")
                              (:file "bluez")))
-               (:module "autospec"
+               (:module "c2ffi-spec"
                 :depends-on ("package-stage-1")
                 :components ((:cffi/c2ffi-file "bluez.h"
                               :package #:hu.dwim.bluez.ffi
-                              :spec-path (system-relative-pathname :hu.dwim.bluez "autospec/")
                               ;; :ffi-name-transformer "hu.dwim.bluez::ffi-name-transformer"
                               :ffi-type-transformer "hu.dwim.bluez::ffi-type-transformer"
                               :foreign-library-name "hu.dwim.bluez.ffi::libbluetooth"
@@ -62,7 +61,6 @@
                                                     "close"
                                                     "ioctl"
                                                     "fcntl"
-                                                    "strerror"
                                                     "F_SETFL"
                                                     "F_GETFL"
                                                     "O_NONBLOCK"
@@ -86,9 +84,13 @@
   :license "BSD or Bugroff"
   :version "0.1"
 
+  :defsystem-depends-on (:hu.dwim.asdf)
+  :class "hu.dwim.asdf:hu.dwim.system"
   :depends-on (:hu.dwim.bluez
-               :hu.dwim.def
-               :hu.dwim.defclass-star+hu.dwim.def)
+               :hu.dwim.def+hu.dwim.common
+               :hu.dwim.defclass-star+hu.dwim.def
+               :hu.dwim.syntax-sugar)
   :components ((:module "source"
                 :serial t
-                :components ((:file "fancy")))))
+                :components ((:file "package-fancy")
+                             (:file "fancy")))))

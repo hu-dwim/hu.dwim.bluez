@@ -41,7 +41,7 @@
 (defun %c-fun/rc/check-error (rc fn-name whole-form)
   (when (minusp rc)
     (error "FFI call failed. Name: ~S, return-code: ~S, errno: ~S, strerror: ~S, expression: ~S."
-           fn-name rc cffi:*errno* (strerror cffi:*errno*) whole-form)))
+           fn-name rc cffi:*errno* (cffi:strerror cffi:*errno*) whole-form)))
 
 #+nil ;; TODO add something like this, but it needs to get debugged
 (defmethod swank::compute-enriched-decoded-arglist ((operator-form (eql 'c-fun/rc)) argument-forms)
@@ -83,12 +83,12 @@
 
 (defun (setf fd-nonblocking-p) (enabled fd)
   (check-type fd fd)
-  (let* ((current-flags (c-fun/rc fcntl fd +f_getfl+))
+  (let* ((current-flags (c-fun/rc |fcntl| fd |F_GETFL|))
          (new-flags (if enabled
-                        (logior current-flags +o_nonblock+)
-                        (logand current-flags (lognot +o_nonblock+)))))
+                        (logior current-flags |O_NONBLOCK|)
+                        (logand current-flags (lognot |O_NONBLOCK|)))))
     (unless (eql current-flags new-flags)
-      (c-fun/rc fcntl fd +f_setfl+ :int new-flags)))
+      (c-fun/rc |fcntl| fd |F_SETFL| :int new-flags)))
   (values))
 
 ;;;;;;
@@ -98,7 +98,7 @@
   (check-type filter foreign-pointer)
   ;;(check-type filter hci_filter)
   ;; TODO add something to CFFI to make cffi:foreign-type-size happen at compile time?
-  (c-fun memset filter 0 (load-time-value (cffi:foreign-type-size '(:struct hci_filter))))
+  (c-fun |memset| filter 0 (load-time-value (cffi:foreign-type-size '(:struct |hci_filter|))))
   filter)
 
 (defun hci-filter/set-ptype (type filter)
@@ -106,21 +106,21 @@
   (check-type filter foreign-pointer)
   (check-type type (integer 0 31))
   ;; 	hci_set_bit((t == HCI_VENDOR_PKT) ? 0 : (t & HCI_FLT_TYPE_BITS), &f->type_mask);
-  (let ((type-mask (c-ref filter (:struct hci_filter) type_mask)))
+  (let ((type-mask (c-ref filter (:struct |hci_filter|) |type_mask|)))
     (check-type type-mask (unsigned-byte 32))
-    (setf (ldb (byte 1 (if (= type +hci_vendor_pkt+)
+    (setf (ldb (byte 1 (if (= type |HCI_VENDOR_PKT|)
                            0
-                           (logand type +hci_flt_type_bits+)))
+                           (logand type |HCI_FLT_TYPE_BITS|)))
                type-mask)
           1)
-    (setf (c-ref filter (:struct hci_filter) type_mask) type-mask))
+    (setf (c-ref filter (:struct |hci_filter|) |type_mask|) type-mask))
   filter)
 
 (defun hci-filter/set-event (event filter)
   ;;(check-type hci-filter hci-filter)
   (check-type event (integer 0 63))
   ;; 	hci_set_bit((e & HCI_FLT_EVENT_BITS), &f->event_mask);
-  (let* ((event (logand event +hci_flt_event_bits+)))
+  (let* ((event (logand event |HCI_FLT_EVENT_BITS|)))
     (multiple-value-bind
           (word-offset bit-offset)
         (floor event 32)
@@ -129,8 +129,8 @@
                  event-mask)
             1)
       ;; TODO use c-ref if possible
-      (setf (ldb (byte 1 bit-offset) (mem-aref (foreign-slot-pointer filter '(:struct hci_filter) 'event_mask)
-                                               'uint32_t word-offset))
+      (setf (ldb (byte 1 bit-offset) (mem-aref (foreign-slot-pointer filter '(:struct |hci_filter|) '|event_mask|)
+                                               '|uint32_t| word-offset))
             1)
       #+nil
       (let ((value (c-ref hci-filter hci-filter :event-mask word-offset)))
@@ -141,43 +141,43 @@
 (defun hci-filter/initialize-for-le-scanning (filter)
   ;;(check-type hci-filter hci-filter)
   (hci-filter/clear filter)
-  (hci-filter/set-ptype +hci_event_pkt+ filter)
-  (hci-filter/set-event +evt_le_meta_event+ filter)
-  (hci-filter/set-event +evt_le_advertising_report+ filter)
+  (hci-filter/set-ptype |HCI_EVENT_PKT| filter)
+  (hci-filter/set-event |EVT_LE_META_EVENT| filter)
+  (hci-filter/set-event |EVT_LE_ADVERTISING_REPORT| filter)
   filter)
 
 (defun hci/device-name (device-id)
   (check-type device-id hci/device-id)
-  (with-foreign-object (device-info '(:struct hci_dev_info))
-    (c-fun/rc hci_devinfo device-id device-info)
+  (with-foreign-object (device-info '(:struct |hci_dev_info|))
+    (c-fun/rc |hci_devinfo| device-id device-info)
     ;; which one is more readable? maybe use something like (defmacro cref (&rest x) x) for readability?
     ;;(c-ref device-info hci-dev-info :name string)
-    (values (foreign-string-to-lisp (foreign-slot-pointer device-info '(:struct hci_dev_info) 'name))
+    (values (foreign-string-to-lisp (foreign-slot-pointer device-info '(:struct |hci_dev_info|) '|name|))
             ;; TODO this seems to dereference a pointer that we don't want (c-ref device-info (:struct hci_dev_info) name)
-            (bdaddr->string (foreign-slot-pointer device-info '(:struct hci_dev_info) 'bdaddr)))))
+            (bdaddr->string (foreign-slot-pointer device-info '(:struct |hci_dev_info|) '|bdaddr|)))))
 
 (defun hci/is-device-le-capable? (device-id)
   (check-type device-id hci/device-id)
-  (with-foreign-object (device-info '(:struct hci_dev_info))
-    (c-fun/rc hci_devinfo device-id device-info)
+  (with-foreign-object (device-info '(:struct |hci_dev_info|))
+    (c-fun/rc |hci_devinfo| device-id device-info)
     ;; from: http://code.metager.de/source/xref/linux/bluetooth/bluez-hcidump/lib/hci.c#lmp_features_map
-    (not (zerop (logand (cffi:mem-ref (foreign-slot-pointer device-info '(:struct hci_dev_info) 'features)
+    (not (zerop (logand (cffi:mem-ref (foreign-slot-pointer device-info '(:struct |hci_dev_info|) '|features|)
                                       :uchar 4)
-                        +lmp_le+)))))
+                        |LMP_LE|)))))
 
 (defun hci/shutdown-device (socket device-id)
   (check-type device-id hci/device-id)
   (check-type socket fd)
-  (c-fun/rc ioctl socket +hcidevdown+ :int device-id))
+  (c-fun/rc |ioctl| socket |HCIDEVDOWN| :int device-id))
 
 (defun hci/bringup-device (socket device-id)
   (check-type device-id hci/device-id)
   (check-type socket fd)
-  (c-fun/rc ioctl socket +hcidevup+ :int device-id))
+  (c-fun/rc |ioctl| socket |HCIDEVUP| :int device-id))
 
 (defun hci/reset-device (device-id)
   (check-type device-id hci/device-id)
-  (let ((socket (c-fun/rc socket +af_bluetooth+ +sock_raw+ +btproto_hci+)))
+  (let ((socket (c-fun/rc |socket| |AF_BLUETOOTH| |SOCK_RAW| |BTPROTO_HCI|)))
     (unwind-protect
          ;; NOTE: +hcidevreset+ is broken in some way. when using this to reset the device then
          ;; scanning won't yield any results afterwards. see also the source of hciconfig:
@@ -185,21 +185,21 @@
          (progn
            (hci/shutdown-device socket device-id)
            (hci/bringup-device socket device-id))
-      (c-fun/rc close socket)))
+      (c-fun/rc |close| socket)))
   (values))
 
 (defun bdaddr->string (bdaddr)
   (check-type bdaddr foreign-pointer)
   (assert (not (cffi:null-pointer-p bdaddr)))
   (with-foreign-object (address :char 32)
-    (ba2str bdaddr address)
+    (|ba2str| bdaddr address)
     (cffi:foreign-string-to-lisp address)))
 
 (defun string->bdaddr (str bdaddr)
   (check-type str string)
   (check-type bdaddr foreign-pointer)
   (assert (not (cffi:null-pointer-p bdaddr)))
-  (c-fun/rc str2ba str bdaddr))
+  (c-fun/rc |str2ba| str bdaddr))
 
 (macrolet ((x (name value &optional doc)
              `(progn
