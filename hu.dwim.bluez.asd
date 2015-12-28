@@ -39,6 +39,8 @@
                                                   )
                               :include-sources ("bits/types.h"
                                                 "sys/types.h"
+                                                "errno.h"
+                                                "errno-base.h"
                                                 "bluetooth/bluetooth.h"
                                                 "bluetooth/hci.h"
                                                 "bluetooth/hci_lib.h")
