@@ -159,7 +159,7 @@
   (hci-filter/set-event |EVT_LE_ADVERTISING_REPORT| filter)
   filter)
 
-(defun hci/device-name (device-id)
+(defun hci/adapter-name (device-id)
   (check-type device-id hci/device-id)
   (with-foreign-object (device-info '(:struct |hci_dev_info|))
     (c-fun/rc |hci_devinfo| device-id device-info)
@@ -188,7 +188,7 @@
   (check-type socket fd)
   (c-fun/rc |ioctl| socket |HCIDEVUP| :int device-id))
 
-(defun hci/reset-device (device-id)
+(defun hci/reset-adapter (device-id)
   (check-type device-id hci/device-id)
   (let ((socket (c-fun/rc |socket| |AF_BLUETOOTH| |SOCK_RAW| |BTPROTO_HCI|)))
     (unwind-protect
