@@ -38,10 +38,23 @@
 ;;;;;;
 ;;; utils
 
+;; NOTE: this is linux only and it's not thread safe, but errno is
+;; such a big can or worms that it should be left rotten in the ground
+;; until it gets recycled into a completely different configuration of
+;; atoms.
+(defcfun (%errno-location "__errno_location") (:pointer :int))
+
+(defcfun (%strerror "strerror") :string (errno :int))
+
+(define-symbol-macro *errno* (mem-ref (%errno-location) :int))
+
+(defun strerror (&optional (errno *errno*))
+  (%strerror errno))
+
 (defun %c-fun/rc/check-error (rc fn-name whole-form)
   (when (minusp rc)
     (error "FFI call failed. Name: ~S, return-code: ~S, errno: ~S, strerror: ~S, expression: ~S."
-           fn-name rc cffi:*errno* (cffi:strerror cffi:*errno*) whole-form)))
+           fn-name rc *errno* (strerror *errno*) whole-form)))
 
 #+nil ;; TODO add something like this, but it needs to get debugged
 (defmethod swank::compute-enriched-decoded-arglist ((operator-form (eql 'c-fun/rc)) argument-forms)

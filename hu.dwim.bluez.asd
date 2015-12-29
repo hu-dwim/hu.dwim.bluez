@@ -8,7 +8,6 @@
   :depends-on (:alexandria
                :cffi
                :cffi/c2ffi
-               :cffi/errno
                :cffi-libffi)
   :components ((:file "package-stage-1"
                 :pathname "source/package-stage-1")
