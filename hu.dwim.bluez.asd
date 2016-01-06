@@ -11,6 +11,9 @@
                :cffi-libffi)
   :components ((:file "package-stage-1"
                 :pathname "source/package-stage-1")
+               (:file "ffi-prelude"
+                :pathname "source/ffi-prelude"
+                :depends-on ("package-stage-1"))
                (:module "source"
                 :depends-on ("c2ffi-spec" "package-stage-1")
                 :serial t
@@ -18,7 +21,7 @@
                              (:file "package-stage-3")
                              (:file "bluez")))
                (:module "c2ffi-spec"
-                :depends-on ("package-stage-1")
+                :depends-on ("ffi-prelude")
                 :components ((:cffi/c2ffi-file "bluez.h"
                               :package #:hu.dwim.bluez.ffi
                               ;; :ffi-name-transformer "hu.dwim.bluez::ffi-name-transformer"
@@ -38,23 +41,16 @@
                                                   )
                               :include-sources ("bits/types.h"
                                                 "sys/types.h"
+                                                "stdint.h"
                                                 "errno.h"
                                                 "errno-base.h"
                                                 "bluetooth/bluetooth.h"
                                                 "bluetooth/hci.h"
                                                 "bluetooth/hci_lib.h")
                               :exclude-sources :all
-                              :include-definitions ("int8_t"
-                                                    "uint8_t"
-                                                    "int16_t"
-                                                    "uint16_t"
-                                                    "int32_t"
-                                                    "uint32_t"
-                                                    "int64_t"
-                                                    "uint64_t"
-                                                    "memset"
-                                                    "size_t"
+                              :include-definitions ("size_t"
                                                     "ssize_t"
+                                                    "memset"
                                                     "socklen_t"
                                                     "getsockopt"
                                                     "setsockopt"
