@@ -28,7 +28,7 @@
                 :format-arguments (list return-code (strerror)))
          return-code)))
 
-#+nil
+#+nil ;; we're fine with the default for now
 (defun ffi-name-transformer (name kind &key &allow-other-keys)
   (check-type name string)
   name)
@@ -44,10 +44,7 @@
             (not (member (second context)
                          ;; a blacklist of hci function names (as a string)
                          ;; that should automatically signal error on failure.
-                         '(
-                           ;; TODO FIXME it's blacklisted due to a cffi-libffi bug
-                           "hci_le_create_conn"
-                           )
+                         '()
                          :test 'equal)))
        ;; this is a cffi type that automatically signals
        ;; an error if the return code is negative.

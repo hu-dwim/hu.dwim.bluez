@@ -23,24 +23,3 @@
    ;; (22:14:56) specbot: http://www.lispworks.com/reference/HyperSpec/Body/m_defpkg.htm
    ;; (22:15:13) stassats: right before the Examples section it lists the order
    ))
-
-(in-package :hu.dwim.bluez)
-
-#+nil ;; we're fine with the default for now
-(defun ffi-name-transformer (name kind &key &allow-other-keys)
-  (check-type name string)
-  (case kind
-    (:constant
-     (format nil "+~A+" name))
-    (t name)))
-
-(defun ffi-type-transformer (type context &rest args &key &allow-other-keys)
-  (let ((type (apply 'cffi/c2ffi:default-ffi-type-transformer type context args)))
-    (cond
-      #+nil
-      ((equal context '(:struct "hci_dev_info" "name"))
-       (assert (equal type '(:array :char 8)))
-       ;; err, no, this dereferences a pointer
-       :string)
-      (t
-       type))))

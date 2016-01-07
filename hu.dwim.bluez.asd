@@ -35,10 +35,6 @@
                                               "x86_64-apple-darwin9"
                                               "i686-pc-windows-msvc"
                                               "x86_64-pc-windows-msvc")
-                              :sys-include-paths ( ;; my llvm is not installed; or is it a c2ffi bug?
-                                                  "/media/store/work/llvm-3.6/lib/clang/3.6.2/include/"
-                                                  ;;"/usr/include/linux/"
-                                                  )
                               :include-sources ("bits/types.h"
                                                 "sys/types.h"
                                                 "stdint.h"
