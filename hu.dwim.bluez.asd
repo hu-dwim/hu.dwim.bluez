@@ -24,6 +24,7 @@
                 :depends-on ("ffi-prelude")
                 :components ((:cffi/c2ffi-file "bluez.h"
                               :package #:hu.dwim.bluez.ffi
+                              :rule-matcher :ends-with-subseq
                               ;; :ffi-name-transformer "hu.dwim.bluez::ffi-name-transformer"
                               :ffi-type-transformer "hu.dwim.bluez::ffi-type-transformer"
                               :foreign-library-name "hu.dwim.bluez.ffi::libbluetooth"
