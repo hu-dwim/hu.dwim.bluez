@@ -2,13 +2,6 @@
   (:use #:cl
         #:alexandria
         #:cffi)
-  (:shadow
-   #:listen
-   #:hci-filter-clear
-   #:hci-filter-set-ptype
-   #:hci-filter-set-event
-   )
-
   (:export
    ;; NOTE: it's not possible to re-export stuff from hu.dwim.bluez.ffi by directly referencing the symbols,
    ;; because that changes the behavior of cl:shadow and break things.
