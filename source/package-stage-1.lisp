@@ -1,4 +1,4 @@
-(defpackage :hu.dwim.bluez
+(uiop:define-package :hu.dwim.bluez
   (:use #:cl
         #:alexandria
         #:cffi)
