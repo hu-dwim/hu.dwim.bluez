@@ -1,5 +1,5 @@
 (uiop:define-package :hu.dwim.bluez
-  (:use #:cl
+  (:use #:common-lisp
         #:alexandria
         #:cffi)
   (:export

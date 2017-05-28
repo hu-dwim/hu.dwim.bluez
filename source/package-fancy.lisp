@@ -10,7 +10,7 @@
   (:local-nicknames
    (#:bluez :hu.dwim.bluez)
    (#:bluez.ffi :hu.dwim.bluez.ffi))
-  ;; To use C-c C-c in slime: (asdf:load-systems :hu.dwim.def+swank :hu.dwim.bluez/fancy)
+  ;; To be able to use C-c C-c in Slime: (asdf:load-systems :hu.dwim.def+swank :hu.dwim.bluez/fancy)
   (:readtable-setup
    (hu.dwim.syntax-sugar:enable-sharp-boolean-syntax)
    (hu.dwim.syntax-sugar:enable-feature-cond-syntax)

@@ -21,7 +21,7 @@
                              (:file "package-stage-3")
                              (:file "bluez")))
                (:module "c2ffi-spec"
-                :depends-on ("ffi-prelude")
+                :depends-on ("ffi-prelude" "package-stage-1")
                 :components ((:cffi/c2ffi-file "bluez.h"
                               :package #:hu.dwim.bluez.ffi
                               ;; :ffi-name-transformer "hu.dwim.bluez::ffi-name-transformer"
@@ -72,7 +72,7 @@
                               :exclude-definitions ())))))
 
 (defsystem :hu.dwim.bluez/fancy
-  :description "Fancier API extensions for hu.dwim.bluez in return for more dependencies."
+  :description "Fancier API extensions for hu.dwim.bluez for the price of more dependencies."
   :author "Attila Lendvai"
   :license "BSD or Bugroff"
   :version "0.1"
