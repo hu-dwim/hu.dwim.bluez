@@ -19,6 +19,9 @@ The primary communication channel is the facilities on
 The project uses [CFFI/C2FFI](https://github.com/cffi/cffi) to
 automatically generate the CFFI definitions from the C header files.
 
+An example of how to use it can be found
+[in this abandoned project](https://github.com/attila-lendvai/bluetooth-mqtt-gateway).
+
 ## Status
 
 The entire C side of the Bluez API is available through CFFI.
