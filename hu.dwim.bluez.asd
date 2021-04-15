@@ -87,3 +87,27 @@
                 :serial t
                 :components ((:file "package-fancy")
                              (:file "fancy")))))
+
+(defsystem :hu.dwim.bluez/examples
+  :description "Simple examples of using hu.dwim.bluez"
+  :author "Attila Lendvai"
+  :license "BSD or Bugroff"
+  :version "0.1"
+
+  :defsystem-depends-on (:hu.dwim.asdf)
+  :class "hu.dwim.asdf:hu.dwim.system"
+  :depends-on (:alexandria
+               :hu.dwim.bluez/fancy
+               :hu.dwim.def+hu.dwim.common
+               :hu.dwim.defclass-star+hu.dwim.def
+               :hu.dwim.logger
+               :hu.dwim.syntax-sugar
+               :hu.dwim.util
+               :hu.dwim.util/error-handling+swank
+               :iterate
+               :ironclad)
+  :components ((:module "examples"
+                :serial t
+                :components ((:file "package")
+                             (:file "logger")
+                             (:file "scanning")))))
