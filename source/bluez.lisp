@@ -1,6 +1,7 @@
 (in-package :hu.dwim.bluez)
 
 ;; TODO HCI is little-endian. these should be swapping bytes when run on big-endian hosts.
+;; probably it should be implemented by depending on the project called nibbles from quicklisp.
 (declaim (inline htob/16 htob/32 htob/64 htob/128))
 
 (defun htob/16 (value)
